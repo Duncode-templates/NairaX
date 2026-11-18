@@ -61,6 +61,7 @@ import {
   XBrandIcon,
   YouTubeBrandIcon,
 } from './components/PlatformIcons';
+import { ProductionFloatingBadge } from './components/ProductionFloatingBadge';
 import {
   DEFAULT_AMOUNT_SUMMARY,
   formatCompactNairaNumber,
@@ -1509,10 +1510,10 @@ export default function App() {
       <main
         className={`flex-1 w-full max-w-xl mx-auto px-4 sm:px-6 flex flex-col justify-start ${
           activeTab === 'notifications'
-            ? 'pt-0 pb-8'
+            ? 'pt-0 pb-16'
             : activeTab === 'settings' || SETTINGS_SUBPAGES.includes(activeTab)
-            ? 'pt-4 sm:pt-6 pb-8'
-            : 'pt-3 sm:pt-5 pb-28'
+            ? 'pt-4 sm:pt-6 pb-16'
+            : 'pt-3 sm:pt-5 pb-36'
         }`}
       >
         <AnimatePresence mode="wait" initial={false} custom={tabDirection}>
@@ -3556,6 +3557,9 @@ export default function App() {
           </motion.div>
         </AnimatePresence>
       </main>
+
+      {/* Floating Production Status Badge */}
+      <ProductionFloatingBadge hasBottomDock={!isFullScreenTab(activeTab)} />
 
       {/* Floating Liquid Glass Capsule Bottom Navigation */}
       {!isFullScreenTab(activeTab) && (
