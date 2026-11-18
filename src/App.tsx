@@ -338,18 +338,18 @@ const GREETING_CONFIG: Record<
 > = {
   morning: {
     text: 'Good morning',
-    stickerSrc: '/src/assets/images/sticker_greeting_morning_1794912930619.jpg',
+    stickerSrc: './src/assets/images/sticker_greeting_morning_1794912930619.jpg',
     stickerAlt: 'Morning sun sticker',
   },
   afternoon: {
     text: 'Good afternoon',
     stickerSrc:
-      '/src/assets/images/sticker_greeting_afternoon_1794912930711.jpg',
+      './src/assets/images/sticker_greeting_afternoon_1794912930711.jpg',
     stickerAlt: 'Afternoon sun sticker',
   },
   evening: {
     text: 'Good evening',
-    stickerSrc: '/src/assets/images/sticker_greeting_evening_1794912930700.jpg',
+    stickerSrc: './src/assets/images/sticker_greeting_evening_1794912930700.jpg',
     stickerAlt: 'Evening moon sticker',
   },
 };
@@ -1011,7 +1011,7 @@ export default function App() {
     bankName: 'Kuda Microfinance Bank',
     accountNumber: '2048194821',
     referralCode: 'NXELENA8',
-    avatarSrc: '/src/assets/images/avatar_executive_user_1794910916279.jpg',
+    avatarSrc: './src/assets/images/avatar_executive_user_1794910916279.jpg',
   });
   const [profileSheet, setProfileSheet] = useState<
     | null
@@ -1752,7 +1752,7 @@ export default function App() {
                       <Gift className="w-5 h-5" aria-hidden="true" />
                     ) : (
                       <img
-                        src="/src/assets/images/icon_quick_bonus_1794923027027.jpg"
+                        src="./src/assets/images/icon_quick_bonus_1794923027027.jpg"
                         alt="Bonus icon"
                         referrerPolicy="no-referrer"
                         onError={() =>
@@ -1777,7 +1777,7 @@ export default function App() {
                       <CheckSquare className="w-5 h-5" aria-hidden="true" />
                     ) : (
                       <img
-                        src="/src/assets/images/icon_quick_perform_tasks_1794923010635.jpg"
+                        src="./src/assets/images/icon_quick_perform_tasks_1794923010635.jpg"
                         alt="Perform Tasks icon"
                         referrerPolicy="no-referrer"
                         onError={() =>
@@ -1802,7 +1802,7 @@ export default function App() {
                       <ArrowLeftRight className="w-5 h-5" aria-hidden="true" />
                     ) : (
                       <img
-                        src="/src/assets/images/icon_quick_buy_sell_1794923010032.jpg"
+                        src="./src/assets/images/icon_quick_buy_sell_1794923010032.jpg"
                         alt="Buy and Sell icon"
                         referrerPolicy="no-referrer"
                         onError={() =>
@@ -1827,7 +1827,7 @@ export default function App() {
                       <Users className="w-5 h-5" aria-hidden="true" />
                     ) : (
                       <img
-                        src="/src/assets/images/icon_quick_refer_1794923009114.jpg"
+                        src="./src/assets/images/icon_quick_refer_1794923009114.jpg"
                         alt="Refer icon"
                         referrerPolicy="no-referrer"
                         onError={() =>
