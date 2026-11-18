@@ -61,7 +61,9 @@ import {
   XBrandIcon,
   YouTubeBrandIcon,
 } from './components/PlatformIcons';
+import { AuthScreen, type AuthMode, type AuthUserPayload } from './components/AuthScreen';
 import { ProductionFloatingBadge } from './components/ProductionFloatingBadge';
+import { TopGreenGradient } from './components/TopGreenGradient';
 import {
   DEFAULT_AMOUNT_SUMMARY,
   formatCompactNairaNumber,
@@ -943,6 +945,21 @@ function MarkAsReadButton({
 }
 
 export default function App() {
+  const [initialSession] = useState<AuthUserPayload | null>(() => {
+    try {
+      const raw = localStorage.getItem('nairax_session_v1');
+      if (!raw) return null;
+      const parsed = JSON.parse(raw) as AuthUserPayload;
+      return parsed && parsed.fullName ? parsed : null;
+    } catch {
+      return null;
+    }
+  });
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() =>
+    Boolean(initialSession)
+  );
+  const [authNotice, setAuthNotice] = useState('');
+
   const [{ tab: activeTab, dir: tabDirection }, setTabState] = useState<{
     tab: BottomTab;
     dir: number;
@@ -1003,16 +1020,16 @@ export default function App() {
   const [dayPeriod, setDayPeriod] = useState<DayPeriod>(() =>
     getDayPeriod(new Date().getHours())
   );
-  const [profile, setProfile] = useState({
-    fullName: 'Elena Vance',
-    handle: '@elena.nx',
+  const [profile, setProfile] = useState(() => ({
+    fullName: initialSession?.fullName || 'Elena Vance',
+    handle: initialSession?.handle || '@elena.nx',
     gender: '',
-    phone: '+234 803 412 8890',
+    phone: initialSession?.phone || '+234 803 412 8890',
     bankName: 'Kuda Microfinance Bank',
     accountNumber: '2048194821',
-    referralCode: 'NXELENA8',
+    referralCode: initialSession?.referralCode || 'NXELENA8',
     avatarSrc: './src/assets/images/avatar_executive_user_1794910916279.jpg',
-  });
+  }));
   const [profileSheet, setProfileSheet] = useState<
     | null
     | 'phone'
@@ -1025,7 +1042,9 @@ export default function App() {
     | 'about'
     | 'logout'
   >(null);
-  const [nameDraft, setNameDraft] = useState('Elena Vance');
+  const [nameDraft, setNameDraft] = useState(
+    () => initialSession?.fullName || 'Elena Vance'
+  );
   const [pinEnabled, setPinEnabled] = useState(true);
   const [securityPin, setSecurityPin] = useState('1234');
   const [pinDraft, setPinDraft] = useState('');
@@ -1060,7 +1079,9 @@ export default function App() {
     };
   }, [activeTab]);
   const [settingsBannerVisible, setSettingsBannerVisible] = useState(true);
-  const [settingsEmail, setSettingsEmail] = useState('');
+  const [settingsEmail, setSettingsEmail] = useState(
+    () => initialSession?.email || ''
+  );
   const [emailDraft, setEmailDraft] = useState('');
   const [darkMode, setDarkMode] = useState(() =>
     typeof document !== 'undefined'
@@ -1405,8 +1426,73 @@ export default function App() {
 
   const currentGreeting = GREETING_CONFIG[dayPeriod];
 
+  const handleToggleDarkMode = () => {
+    setDarkMode((prev) => {
+      const next = !prev;
+      if (typeof document !== 'undefined') {
+        document.documentElement.classList.toggle('dark', next);
+      }
+      return next;
+    });
+  };
+
+  const handleAuthSuccess = (user: AuthUserPayload, mode: AuthMode) => {
+    setProfile((prev) => ({
+      ...prev,
+      fullName: user.fullName,
+      handle: user.handle,
+      phone: user.phone,
+      referralCode: user.referralCode || prev.referralCode,
+    }));
+    setNameDraft(user.fullName);
+    setSettingsEmail(user.email);
+    setPasswordSet(true);
+    setAuthNotice('');
+    setAccountNotice(
+      mode === 'register'
+        ? `Welcome to NairaX, ${user.fullName.split(' ')[0]}!`
+        : ''
+    );
+    try {
+      localStorage.setItem('nairax_session_v1', JSON.stringify(user));
+    } catch {
+      // Ignore storage errors
+    }
+    setActiveTab('home');
+    setIsAuthenticated(true);
+  };
+
+  const handleLogout = () => {
+    try {
+      localStorage.removeItem('nairax_session_v1');
+    } catch {
+      // Ignore storage errors
+    }
+    setProfileSheet(null);
+    setAccountNotice('');
+    setAuthNotice('You have been logged out.');
+    setIsAuthenticated(false);
+    setActiveTab('home');
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <>
+        <AuthScreen
+          darkMode={darkMode}
+          onToggleDarkMode={handleToggleDarkMode}
+          notice={authNotice}
+          onDismissNotice={() => setAuthNotice('')}
+          onAuthSuccess={handleAuthSuccess}
+        />
+        <ProductionFloatingBadge hasBottomDock={false} />
+      </>
+    );
+  }
+
   return (
-    <div className="min-h-screen overflow-x-clip bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col">
+    <div className="relative min-h-screen overflow-x-clip bg-[#F7FCF9] dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col">
+      <TopGreenGradient />
       {/* Sticky Mobile-First Top App Bar with Liquid Glass Sculpted Center Notch */}
       {!isFullScreenTab(activeTab) && (
         <header className="sticky top-0 z-30 h-14 pointer-events-none">
@@ -1508,7 +1594,7 @@ export default function App() {
 
       {/* Main Mobile-First Viewport */}
       <main
-        className={`flex-1 w-full max-w-xl mx-auto px-4 sm:px-6 flex flex-col justify-start ${
+        className={`relative z-10 flex-1 w-full max-w-xl mx-auto px-4 sm:px-6 flex flex-col justify-start ${
           activeTab === 'notifications'
             ? 'pt-0 pb-16'
             : activeTab === 'settings' || SETTINGS_SUBPAGES.includes(activeTab)
@@ -2526,7 +2612,7 @@ export default function App() {
         {activeTab === 'notifications' && (
           <section aria-label="Notifications" className="space-y-4">
             {/* Sticky Top Navigation Bar */}
-            <div className="sticky top-0 z-30 -mx-4 sm:-mx-6 px-4 sm:px-6 pt-3 sm:pt-4 pb-2.5 bg-slate-50/85 dark:bg-slate-950/85 backdrop-blur-2xl backdrop-saturate-[180%] border-b border-slate-200/70 dark:border-slate-800/70">
+            <div className="sticky top-0 z-30 -mx-4 sm:-mx-6 px-4 sm:px-6 pt-3 sm:pt-4 pb-2.5 bg-white/45 dark:bg-slate-950/55 backdrop-blur-2xl backdrop-saturate-[180%] border-b border-slate-200/60 dark:border-slate-800/70">
               <div className="relative flex items-center justify-center min-h-[44px]">
                 <button
                   type="button"
@@ -4428,10 +4514,7 @@ export default function App() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => {
-                      setProfileSheet(null);
-                      setAccountNotice('Session logged out');
-                    }}
+                    onClick={handleLogout}
                     className="min-h-[44px] rounded-2xl text-white text-xs font-semibold cursor-pointer bg-rose-600 hover:bg-rose-700"
                   >
                     Confirm Log out
